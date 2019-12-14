@@ -1,0 +1,5 @@
+# Ignore these until i'm ready to put them on github
+2017/
+2018/
+.vscode/
+*.py
