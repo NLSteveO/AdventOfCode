@@ -1,0 +1,84 @@
+#!/bin/bash
+
+echo "Starting Setup!"
+
+year_flag='' # Will default to current year.
+language_flag='' # Will default to JS.
+day_flag='' # Will default to the
+
+print_usage() {
+  printf "Usage: ..."
+}
+
+while getopts 'd:l::y::' flag; do
+  case "${flag}" in
+    d) day_flag="${OPTARG}" ;;
+    l) language_flag="${OPTARG}" ;;
+    y) year_flag="${OPTARG}" ;;
+    *) print_usage
+      exit 1 ;;
+  esac
+done
+
+if [ -z "$language_flag" ]; then
+  language_flag="js"
+fi
+
+if [ -z "$year_flag" ]; then
+  year_flag=$(date +%Y)
+fi
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+dest="$( cd ../"${year_flag}" &> /dev/null && pwd )"
+list=$(find "${dest}" -type d  -name day* -printf "%f ")
+latest=0
+
+if [ -z "$day_flag" ]; then
+  for x in ${list}
+  do
+    y=${x: -2:2}
+    if [ $y -gt $latest ]; then
+      if [ ${y:0:1} -eq 0 ]; then
+        latest=${y:1:1}
+      else
+        latest=$y
+      fi
+    fi
+  done
+  day_flag=$((latest + 1))
+fi
+
+if [ $day_flag -lt 10 ]; then
+  dest=$dest/day0$day_flag
+else
+  dest=$dest/day$day_flag
+fi
+
+echo "Creating folder"
+mkdir $dest
+
+echo "Creating puzzle files"
+cp ./templates/puzzle.js $dest/puzzle1.js
+cp ./templates/puzzle.js $dest/puzzle2.js
+
+cd $dest
+
+echo "Downloading input file"
+curl "https://adventofcode.com/$year_flag/day/$day_flag/input" \
+  -H 'authority: adventofcode.com' \
+  -H 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'upgrade-insecure-requests: 1' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36' \
+  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
+  -H 'sec-fetch-site: none' \
+  -H 'sec-fetch-mode: navigate' \
+  -H 'sec-fetch-user: ?1' \
+  -H 'sec-fetch-dest: document' \
+  -H 'accept-language: en-CA,en-GB;q=0.9,en-US;q=0.8,en;q=0.7' \
+  -H 'cookie: _ga=GA1.2.25300305.1638033405; session=53616c7465645f5fbdf8cb76e3ec8de1a5a69863ee1634bb256eef85c9e8b9dd3f357cfeb808585930a380993134ff81; _gid=GA1.2.394117941.1638366434' \
+  --compressed -o input -s
+
+echo "Setup complete! Happy problem solving! :)"
