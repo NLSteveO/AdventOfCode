@@ -1,24 +1,29 @@
 #!/bin/bash
 
-echo "Starting Setup!"
-
 year_flag='' # Will default to current year.
 language_flag='' # Will default to JS.
 day_flag='' # Will default to the
+silent='false' # Silence my messages
 
 print_usage() {
-  printf "Usage: ..."
+  echo "./SetupDay [-d <day number>] [-y <year>] [-l <language>] [-h] [-s]"
 }
 
-while getopts 'd:l::y::' flag; do
+while getopts 'd:hl:sy:' flag; do
   case "${flag}" in
     d) day_flag="${OPTARG}" ;;
+    H) print_usage ;;
     l) language_flag="${OPTARG}" ;;
+    s) silent='true' ;;
     y) year_flag="${OPTARG}" ;;
     *) print_usage
       exit 1 ;;
   esac
 done
+
+if [[ $silent == 'false' ]]; then
+  echo "Starting Setup!"
+fi
 
 if [ -z "$language_flag" ]; then
   language_flag="js"
@@ -30,8 +35,8 @@ fi
 
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-dest="$( cd ../"${year_flag}" &> /dev/null && pwd )"
-list=$(find "${dest}" -type d  -name day* -printf "%f ")
+dest="$( cd $SCRIPT_DIR &> /dev/null && cd ../$year_flag && pwd )"
+list=$(find "${dest}" -type d -name "day*" -printf "%f ")
 latest=0
 
 if [ -z "$day_flag" ]; then
@@ -49,22 +54,35 @@ if [ -z "$day_flag" ]; then
   day_flag=$((latest + 1))
 fi
 
+if [ $day_flag -gt 25 ]; then
+  if [[ $silent == 'false' ]]; then
+    echo "Day number exceeds the number of days in Advent of Code."
+  fi
+  exit 1
+fi
+
 if [ $day_flag -lt 10 ]; then
   dest=$dest/day0$day_flag
 else
   dest=$dest/day$day_flag
 fi
 
-echo "Creating folder"
+if [[ $silent == 'false' ]]; then
+  echo "Creating folder"
+fi
 mkdir $dest
 
-echo "Creating puzzle files"
-cp ./templates/puzzle.js $dest/puzzle1.js
-cp ./templates/puzzle.js $dest/puzzle2.js
+if [[ $silent == 'false' ]]; then
+  echo "Creating puzzle files"
+fi
+cp $SCRIPT_DIR/templates/puzzle.js $dest/puzzle1.js
+cp $SCRIPT_DIR/templates/puzzle.js $dest/puzzle2.js
 
 cd $dest
 
-echo "Downloading input file"
+if [[ $silent == 'false' ]]; then
+  echo "Downloading input file"
+fi
 curl "https://adventofcode.com/$year_flag/day/$day_flag/input" \
   -H 'authority: adventofcode.com' \
   -H 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"' \
@@ -81,4 +99,6 @@ curl "https://adventofcode.com/$year_flag/day/$day_flag/input" \
   -H 'cookie: _ga=GA1.2.25300305.1638033405; session=53616c7465645f5fbdf8cb76e3ec8de1a5a69863ee1634bb256eef85c9e8b9dd3f357cfeb808585930a380993134ff81; _gid=GA1.2.394117941.1638366434' \
   --compressed -o input -s
 
-echo "Setup complete! Happy problem solving! :)"
+if [[ $silent == 'false' ]]; then
+  echo "Setup complete! Happy problem solving! :)"
+fi
