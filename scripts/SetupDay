@@ -96,7 +96,7 @@ curl "https://adventofcode.com/$year_flag/day/$day_flag/input" \
   -H 'sec-fetch-user: ?1' \
   -H 'sec-fetch-dest: document' \
   -H 'accept-language: en-CA,en-GB;q=0.9,en-US;q=0.8,en;q=0.7' \
-  -H 'cookie: _ga=GA1.2.25300305.1638033405; session=53616c7465645f5fbdf8cb76e3ec8de1a5a69863ee1634bb256eef85c9e8b9dd3f357cfeb808585930a380993134ff81; _gid=GA1.2.394117941.1638366434' \
+  -H 'cookie: _ga=GA1.2.25300305.1638033405; session=53616c7465645f5fc2e8d6ea8360a2d4f31fc0b84bfa6aad524d7c3b77e8a0231565bcfa8b52c98752c09e0ff6bebe862ea2223c4ff1e8f13ac3c001c118959b; _gid=GA1.2.203315216.1670025179' \
   --compressed -o input -s
 
 if [[ $silent == 'false' ]]; then
