@@ -2,8 +2,8 @@
 
 year_flag='' # Will default to current year.
 language_flag='' # Will default to JS.
-day_flag='' # Will default to the
-silent='false' # Silence my messages
+day_flag='' # Will default to the current day.
+silent='false' # Silence my messages.
 
 print_usage() {
   echo "./SetupDay [-d <day number>] [-y <year>] [-l <language>] [-h] [-s]"
@@ -34,8 +34,20 @@ if [ -z "$year_flag" ]; then
 fi
 
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+ROOT_DIR="$( cd $SCRIPT_DIR &> /dev/null && cd ../ &> /dev/null && pwd )"
 
-dest="$( cd $SCRIPT_DIR &> /dev/null && cd ../$year_flag && pwd )"
+if [ -d "${ROOT_DIR}/${year_flag}" ]; then
+  if [[ $silent == 'false' ]]; then
+    echo "Year folder already exists."
+  fi
+else
+  if [[ $silent == 'false' ]]; then
+    echo "Creating year folder."
+  fi
+  mkdir "${ROOT_DIR}/${year_flag}"
+fi
+
+dest="$( cd "${ROOT_DIR}/${year_flag}" && pwd )"
 list=$(find "${dest}" -type d -name "day*" -printf "%f ")
 latest=0
 
@@ -97,7 +109,7 @@ curl "https://adventofcode.com/$year_flag/day/$day_flag/input" \
   -H 'sec-fetch-user: ?1' \
   -H 'sec-fetch-dest: document' \
   -H 'accept-language: en-CA,en-GB;q=0.9,en-US;q=0.8,en;q=0.7' \
-  -H 'cookie: _ga=GA1.2.25300305.1638033405; session=53616c7465645f5fa3b9c81f14b3616f98b8c4a9fc68f7796648abacb5fe4cb1210171fc15b9ed86b0b8aa3e62c11929070887e3663bec93e4e9789ee30e3fc5; _gid=GA1.2.400846020.1671762817' \
+  -H 'cookie: _ga=GA1.2.99505606.1701543202; session=53616c7465645f5f7192ac86e863c9eac08310cb4ee609832573f1f8bb9a8e2a5ae396b2e8e85021b769e41483c2de5bbe5cb12b33868fab1335dac6ef7ca893; _gid=GA1.2.1488857007.1701543202' \
   --compressed -o input -s
 
 if [[ $silent == 'false' ]]; then
